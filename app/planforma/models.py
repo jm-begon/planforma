@@ -1,32 +1,15 @@
 from django.db import models
 
-__FIELD__ = (
-    ("Animation", "Crée et anime"),
-    ("Wellbeing", "Veille au bien-être"),
-    ("Commitment", "Vit un engagement"),
-    ("Evaluation", "Evalue"),
-    ("Fun", "Favorise l'amusement"),
-    ("Other", "Fait d'autres trucs")
-)
-
-__TRAINING__ = (
-    ("Noel", "Noel"),
-    ("Carnaval1", "Carnaval 1e"),
-    ("Formactive1", "Form@ctive 1e"),
-    ("Toussaint", "Toussaint"),
-    ("Carnaval2", "Carnval 2e"),
-    ("Formactive2", "Form@ctive 2e")
-)
-
 
 class Field(models.Model):
-    name = models.CharField(max_length=30, choices=__FIELD__)  # Axe
+    name = models.CharField(max_length=20)
+    long_name = models.CharField(max_length=50)
 
     def __str__(self):
-        return "{}(name={}".format(self.__class__.__name__, repr(self.name))
+        return "[Axe] {}".format(self.name)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('name', 'long_name')
 
 
 class Skill(models.Model):
@@ -35,21 +18,29 @@ class Skill(models.Model):
     advices = models.CharField(max_length=1024)
 
     def __str__(self):
-        return "{}(name={}".format(self.__class__.__name__, repr(self.name))
+        return "[Comp.] {}".format(self.name)
 
     class Meta:
         ordering = ('name', 'advices')
 
 
+class Training(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return "[Formation] {}".format(self.name)
+
+    class Meta:
+        ordering = ('name',)
+
+
 class Module(models.Model):
     name = models.CharField(max_length=50)
-    training = models.CharField(max_length=50, choices=__TRAINING__) # Formation
+    training = models.ForeignKey(Training, on_delete=models.PROTECT)
     skills = models.ManyToManyField(Skill)
 
     def __str__(self):
-        return "{}(name={}, training={}".format(self.__class__.__name__,
-                                                repr(self.name),
-                                                repr(self.training))
+        return "[Module] {}".format(self.name)
 
     class Meta:
         ordering = ('name', 'training')
@@ -60,10 +51,7 @@ class Criterion(models.Model):
     skills = models.ManyToManyField(Skill)
 
     def __str__(self):
-        return "{}(name={}".format(self.__class__.__name__, repr(self.name))
+        return "{}(name={})".format(self.__class__.__name__, repr(self.name))
 
     class Meta:
         ordering = ('name',)
-
-
-
