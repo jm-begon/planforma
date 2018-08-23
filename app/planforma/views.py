@@ -8,13 +8,7 @@ from collections import namedtuple
 
 Sticker = namedtuple('Sticker', ['id', 'name', 'components'])
 
-StickerComponent = namedtuple('StickerComponent', ['id', 'name'])
-
-# View for 'Axes' : Category
-#     'Axe 1': Sticker
-#          'Formations': Category
-#               'Noel', ... : StickerComponent
-
+Navigation = namedtuple('Navigation', ['name', 'address', 'focus'])
 
 __ADDRESSES__ = {
     Field: 'axes',
@@ -64,7 +58,6 @@ class Category(MainCategory):
 
     @classmethod
     def from_iterable(cls, iterable, name, address, short=False):
-        # components = [StickerComponent(x.id, x.name) for x in iterable]
         components = list(iterable)
         return cls(name=name, address=address, list=components, short=short)
 
@@ -154,6 +147,13 @@ class Category(MainCategory):
         return iter(self.list)
 
 
+def create_navigation(model_cls):
+    return tuple((
+        Navigation(Model.name_fr, __ADDRESSES__[Model], Model is model_cls)
+        for Model in (Field, Training, Skill, Module, Criterion)
+    ))
+
+
 def fields(request):
     field_stickers = []
     for field in MainCategory.get_fields():
@@ -170,7 +170,8 @@ def fields(request):
                                        training_category, criterion_category]))
 
     view = MainCategory.from_(Field, field_stickers)
-    return render(request, 'planforma/stickers.html/', {'view': view})
+    return render(request, 'planforma/stickers.html/',
+                  {'view': view, 'navigation': create_navigation(Field)})
 
 
 def trainings(request):
@@ -189,7 +190,8 @@ def trainings(request):
                                           skill_category, criterion_category]))
 
     view = MainCategory.from_(Training, training_stickers)
-    return render(request, 'planforma/stickers.html/', {'view': view})
+    return render(request, 'planforma/stickers.html/',
+                  {'view': view, 'navigation': create_navigation(Training)})
 
 
 def modules(request):
@@ -208,7 +210,8 @@ def modules(request):
                                         skill_category, criterion_category]))
 
     view = MainCategory.from_(Module, module_stickers)
-    return render(request, 'planforma/stickers.html/', {'view': view})
+    return render(request, 'planforma/stickers.html/',
+                  {'view': view, 'navigation': create_navigation(Module)})
 
 
 def skills(request):
@@ -231,7 +234,8 @@ def skills(request):
     # TODO include advices
 
     view = MainCategory.from_(Skill, skill_stickers)
-    return render(request, 'planforma/stickers.html/', {'view': view})
+    return render(request, 'planforma/stickers.html/',
+                  {'view': view, 'navigation': create_navigation(Skill)})
 
 
 def criteria(request):
@@ -249,7 +253,8 @@ def criteria(request):
                                           [field_category, training_category,
                                            module_category, skill_category]))
     view = MainCategory.from_(Criterion, criterion_stickers)
-    return render(request, 'planforma/stickers.html/', {'view': view})
+    return render(request, 'planforma/stickers.html/',
+                  {'view': view, 'navigation': create_navigation(Criterion)})
 
 
 

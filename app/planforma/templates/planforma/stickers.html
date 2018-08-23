@@ -15,7 +15,6 @@
 <body>
     <!--
         TODO:
-            - Navs panels ?
             - Color for axes
             - Scrollspy ?
     -->
@@ -30,14 +29,14 @@
             <p><a class="btn btn-primary btn-lg" href="#start_here" role="button">Let's go </a></p>
 
         </div>
-        <ul class="nav nav-tabs">
-            <!-- TODO: List categories programmatically -->
-            <li class="nav-item"><a class="nav-link active" href="axes">Axes</a></li>
-            <li class="nav-item"><a class="nav-link" href="formations">Formations</a></li>
-            <li class="nav-item"><a class="nav-link" href="competences">Compétences</a></li>
-            <li class="nav-item"><a class="nav-link" href="modules">Modules</a></li>
-            <li class="nav-item"><a class="nav-link" href="criteres">Critères</a></li>
-        </ul>
+        {% if navigation %}
+            <ul class="nav nav-tabs" id="navtabs">
+                {% for tab in navigation %}
+                    <li class="nav-item"><a class="nav-link {{ tab.focus|yesno:"active," }}" href="{{ tab.address }}#navtabs">{{ tab.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         <!-- Model Category Class: Axes -->
         <h2 id="start_here">{{ view.name }}</h2>
         <!-- Model Category Instance: axe animation -->
