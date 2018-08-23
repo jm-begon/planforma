@@ -10,6 +10,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
 
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'planforma/style.css' %}">
+
+
     <title>Plan de formation J&S Liège</title>
 </head>
 <body>
@@ -19,7 +23,6 @@
             - Scrollspy ?
     -->
     <div class="container">
-
 
     {% if view %}
         <div class="jumbotron">
@@ -53,7 +56,7 @@
                         <p>
                         <span class="card-title">{{ category.name }}</span> <a href="{{ category.address }}#start_here" class="icon-tag"></a>
                         {% for sticker_compo in category.list %}
-                            <span class="badge badge-pill badge-light"><a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">{{ sticker_compo.name }}</a></span>
+                            <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}"><span class="badge badge-pill badge-secondary badge-{{ sticker_compo.name }}">{{ sticker_compo.name }}</span></a>
                         {% endfor %}
                         </p>
                     {% else %} <!-- long -->
@@ -91,6 +94,15 @@
     {% else %}
         <p>'view' not set</p>
     {% endif %}
+
+        <footer>
+            <span class="badge badge-pill badge-secondary badge-Bien-être">Bien-être</span>
+            <span class="badge badge-pill badge-secondary badge-Animation">Animation</span>
+            <span class="badge badge-pill badge-secondary badge-Evalue">Evalue</span>
+            <span class="badge badge-pill badge-secondary badge-Engagement">Engagement</span>
+            <span class="badge badge-pill badge-secondary badge-Autre">Autre</span>
+            <span class="badge badge-pill badge-secondary badge-Amusement">Amusement</span>
+        </footer>
     </div>
 </body>
 </html>
