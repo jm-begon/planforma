@@ -77,7 +77,7 @@ class Category(MainCategory):
                                  __ADDRESSES__[Skill], short)
 
     @classmethod
-    def modules(cls, iterable, short=False):
+    def modules(cls, iterable, short=True):
         return cls.from_iterable(iterable, Module.name_fr,
                                  __ADDRESSES__[Module], short)
 
@@ -121,7 +121,7 @@ class Category(MainCategory):
         return cls.skills(d.values(), short)
 
     @classmethod
-    def modules_from_trainings(cls, trainings, short=False):
+    def modules_from_trainings(cls, trainings, short=True):
         d = {}
         for training in trainings:
             d.update({x.id: x for x in
@@ -129,7 +129,7 @@ class Category(MainCategory):
         return cls.modules(d.values(), short)
 
     @classmethod
-    def modules_from_skills(cls, skills, short=False):
+    def modules_from_skills(cls, skills, short=True):
         skill_ids = [skill.id for skill in skills]
         modules = Module.objects.filter(skills__in=skill_ids).distinct()
         return cls.modules(modules, short)
@@ -166,8 +166,8 @@ def fields(request):
         criterion_category = Category.criteria_from_skills(skill_category)
 
         field_stickers.append(Sticker(field.id, field.long_name,
-                                      [skill_category, module_category,
-                                       training_category, criterion_category]))
+                                      [training_category, module_category,
+                                       skill_category, criterion_category]))
 
     view = MainCategory.from_(Field, field_stickers)
     return render(request, 'planforma/stickers.html/',
