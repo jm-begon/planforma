@@ -259,4 +259,100 @@ def criteria(request):
                   {'view': view, 'navigation': create_navigation(Criterion)})
 
 
+def unassigned(request):
+    Missing = namedtuple('Missing', ['heading', 'list'])
+
+    # Skill-based stuff
+    exists = set()
+    missing_field_from_skills = []
+    missing_adives = []
+    for skill in Skill.objects.all():
+        fields = skill.get_fields()
+        # Skill - Field
+        if len(fields) == 0:
+            missing_field_from_skills.append(skill)
+        exists.update({f.id for f in fields})
+        # Skill - Advice
+        if skill.advices is None or len(skill.advices) == 0:
+            missing_adives.append(skill)
+    missing_skill_for_field = Field.objects.exclude(id__in=exists)
+
+    # - Skill without field
+    missing_field_from_skills = Missing(
+        'Compétences sans axe',
+        missing_field_from_skills
+    )
+
+    # - Field without skills
+    missing_skill_for_field = Missing(
+        'Axe vide (aucune compétence)',
+        missing_skill_for_field
+    )
+
+    # Skill - advices
+    missing_advices_from_skills = Missing(
+        'Compétences sans conseil',
+        missing_adives
+    )
+
+    # Module - Training
+    missing_training_for_modules = Missing(
+        'Modules non-assignés (aucune formation)',
+        Module.objects.filter(name='Autre')
+    )
+
+    # Module-based stuff
+    exists = set()
+    missing_skill_for_module = []
+    for module in Module.objects.all():
+        skills = module.get_skills()
+        if len(skills) == 0:
+            missing_skill_for_module.append(module)
+        exists.update({s.id for s in skills})
+    missing_module_for_skill = Module.objects.exclude(id__in=exists)
+
+    # - Skill without module
+    missing_module_for_skill = Missing(
+        'Compétences non-assignées (aucun module)',
+        missing_module_for_skill
+    )
+
+    # - module without skill
+    missing_skill_for_module = Missing(
+        'Modules vides (aucune compétence)',
+        missing_skill_for_module
+    )
+
+    # Criterion-based stuff
+    exists = set()
+    missing_skill_for_criterion = []
+    for criterion in Criterion.objects.all():
+        skills = criterion.get_skills()
+        if len(skills) == 0:
+            missing_skill_for_criterion.append(criterion)
+        exists.update({s.id for s in skills})
+    missing_criterion_for_skill = Criterion.objects.exclude(id__in=exists)
+
+    # - Skill without criterion
+    missing_criterion_for_skill = Missing(
+        'Compétences non-évaluées (aucun critère)',
+        missing_criterion_for_skill
+    )
+    # - Criterion without skill
+    missing_skill_for_criterion = Missing(
+        'Critères inutiles (aucune compétence)',
+        missing_skill_for_criterion
+    )
+
+    missings = missing_field_from_skills, missing_skill_for_field, \
+               missing_advices_from_skills, missing_training_for_modules, \
+               missing_module_for_skill, missing_skill_for_module, \
+               missing_criterion_for_skill, missing_skill_for_criterion
+    return render(request, 'planforma/unassigned.html/',
+                  {'missings': missings})
+
+
+
+
+
 

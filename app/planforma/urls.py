@@ -10,5 +10,6 @@ urlpatterns = [
     path(views.__ADDRESSES__[models.Module], views.modules, name='modules'),
     path(views.__ADDRESSES__[models.Skill], views.skills, name='competences'),
     path(views.__ADDRESSES__[models.Criterion], views.criteria, name='criteres'),
+    path('todo', views.unassigned, name='todo')
 
 ]
