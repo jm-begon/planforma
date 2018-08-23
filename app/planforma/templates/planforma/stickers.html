@@ -8,46 +8,70 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
 
     <title>Plan de formation J&S Liège</title>
 </head>
 <body>
     <!--
         TODO:
-            - Cards/Collapse
-            - Jumbotron
             - Navs panels ?
+            - Color for axes
             - Scrollspy ?
     -->
     <div class="container">
+
+
     {% if view %}
-        <h1>{{ view.name }}</h1> <!-- Model Category Class -->
-        {% for sticker in view.list %} <!-- Model Category Instance -->
-            <h2 id="{{ view.address }}{{ sticker.id }}">
-                <a href="{{ view.address }}#{{ view.address }}{{ sticker.id }}">{{ sticker.name }}</a>
-            </h2>
-            {% for category in sticker.components %} <!-- Other Category Class -->
-                <h3><a href="{{ category.address }}">{{ category.name }}</a></h3>
-                {% if category.short %}
-                    <p>
-                    {% for sticker_compo in category.list %}
-                        <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
-                            {{ sticker_compo.name }},
-                        </a>
-                    {% endfor %}
-                    </p>
-                {% else %}
-                    <ul>
-                    {% for sticker_compo in category.list %}
-                        <li>
-                            <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
-                                {{ sticker_compo.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endfor %}
+        <div class="jumbotron">
+            <h1 class="display-4">Plan de formation J&S Liège</h1>
+            <p class="lead">Bienvenu sur la page '{{ view.name }}' du plan de formation</p>
+            <hr>
+            <p><a class="btn btn-primary btn-lg" href="#start_here" role="button">Let's go </a></p>
+
+        </div>
+        <ul class="nav nav-tabs">
+            <!-- TODO: List categories programmatically -->
+            <li class="nav-item"><a class="nav-link active" href="axes">Axes</a></li>
+            <li class="nav-item"><a class="nav-link" href="formations">Formations</a></li>
+            <li class="nav-item"><a class="nav-link" href="competences">Compétences</a></li>
+            <li class="nav-item"><a class="nav-link" href="modules">Modules</a></li>
+            <li class="nav-item"><a class="nav-link" href="criteres">Critères</a></li>
+        </ul>
+        <!-- Model Category Class: Axes -->
+        <h2 id="start_here">{{ view.name }}</h2>
+        <!-- Model Category Instance: axe animation -->
+        {% for sticker in view.list %}
+            <div class="card"><div class="card-body">
+                <h6 id="{{ view.address }}{{ sticker.id }}" class="card-title">
+                    {{ sticker.name }}
+                    <a href="{{ view.address }}#{{ view.address }}{{ sticker.id }}" class="icon-tag"></a>
+                </h6>
+                <!-- Other Category Class: Formations -->
+                {% for category in sticker.components %}
+                    <div class="card">
+                        <div class="card-header" id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}_header">
+                            <button class="btn btn-link {{ category.short|yesno:",collapsed" }}" type="button" data-toggle="collapse" data-target="#card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" aria-expanded="false" aria-controls="card_{{ category.address }}">
+                                <span class="icon-list"> </span>{{ category.name }}
+                            </button>
+                            <a href="{{ category.address }}" class="icon-tag"></a>
+                        </div>
+                        <div id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" class="collapse {{ category.short|yesno:"show," }}" aria-labelledby="headingOne">
+                            <div class="card-body">
+                                {% if category.short %} <p> {% else %} <ul> {% endif %}
+                                    {% for sticker_compo in category.list %}
+                                        {% if not category.short %} <li> {% else %} <span class="badge badge-pill badge-light">  {% endif %}
+                                            <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
+                                                {{ sticker_compo.name }}
+                                            </a>
+                                        {% if not category.short %} </li> {% else %} </span> {% endif %}
+                                    {% endfor %}
+                                {% if category.short %} </p> {% else %} </ul> {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div></div><br/>
         {% endfor %}
     {% else %}
         <p>'view' not set</p>

@@ -53,10 +53,8 @@ class MainCategory(object):
 
     @classmethod
     def from_(cls, Model_cls, sticker_list):
-        print(Model_cls.name_fr)
         return MainCategory(Model_cls.name_fr, __ADDRESSES__[Model_cls],
                             sticker_list)
-
 
 
 class Category(MainCategory):
@@ -229,6 +227,8 @@ def skills(request):
         skill_stickers.append(Sticker(skill.id, skill.name,
                                       [field_category, training_category,
                                        module_category, criterion_category]))
+
+    # TODO include advices
 
     view = MainCategory.from_(Skill, skill_stickers)
     return render(request, 'planforma/stickers.html/', {'view': view})
