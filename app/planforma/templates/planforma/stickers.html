@@ -56,25 +56,31 @@
                             <span class="badge badge-pill badge-light"><a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">{{ sticker_compo.name }}</a></span>
                         {% endfor %}
                         </p>
-                    {% else %}
+                    {% else %} <!-- long -->
                         <div class="card">
                             <div class="card-header" id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}_header">
                                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" aria-expanded="false" aria-controls="card_{{ category.address }}">
                                     <span class="icon-list"> </span>{{ category.name }}
                                 </button>
-                                <a href="{{ category.address }}#start_here" class="icon-tag"></a>
+                                {% if not category.is_raw %} <a href="{{ category.address }}#start_here" class="icon-tag"></a> {% endif %}
                             </div>
                             <div id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" class="collapse {{ category.short|yesno:"show," }}" aria-labelledby="headingOne">
                                 <div class="card-body">
-                                    <ul>
+                                    {% if not category.is_raw %}
+                                        <ul>
+                                            {% for sticker_compo in category.list %}
+                                                <li>
+                                                    <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
+                                                        {{ sticker_compo.name }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
                                         {% for sticker_compo in category.list %}
-                                            <li>
-                                                <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
-                                                    {{ sticker_compo.name }}
-                                                </a>
-                                            </li>
+                                            <p>{{ sticker_compo }}</p>
                                         {% endfor %}
-                                    </ul>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

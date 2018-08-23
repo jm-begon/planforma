@@ -55,6 +55,7 @@ class Category(MainCategory):
     def __init__(self, name, address, list, short=False):
         super().__init__(name, address, list)
         self.short = short
+        self.is_raw = False
 
     @classmethod
     def from_iterable(cls, iterable, name, address, short=False):
@@ -223,15 +224,16 @@ def skills(request):
 
         training_category = Category.trainings_from_modules(module_category)
 
-        # Advices
+        advice_category = Category("Conseils", "conseil", [skill.advices],
+                                   short=False)
+        advice_category.is_raw = True
 
         criterion_category = Category.criteria_from_skills([skill])
 
         skill_stickers.append(Sticker(skill.id, skill.name,
                                       [field_category, training_category,
-                                       module_category, criterion_category]))
-
-    # TODO include advices
+                                       module_category, criterion_category,
+                                       advice_category]))
 
     view = MainCategory.from_(Skill, skill_stickers)
     return render(request, 'planforma/stickers.html/',
