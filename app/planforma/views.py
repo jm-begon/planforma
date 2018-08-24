@@ -261,6 +261,7 @@ def criteria(request):
 
 def unassigned(request):
     Missing = namedtuple('Missing', ['heading', 'list'])
+    MissingList = namedtuple('MissingList', ['list', 'n_missings'])
 
     # Skill-based stuff
     exists = set()
@@ -298,7 +299,7 @@ def unassigned(request):
     # Module - Training
     missing_training_for_modules = Missing(
         'Modules non-assignés (aucune formation)',
-        Module.objects.filter(name='Autre')
+        Module.objects.filter(training__name="??")
     )
 
     # Module-based stuff
@@ -309,7 +310,7 @@ def unassigned(request):
         if len(skills) == 0:
             missing_skill_for_module.append(module)
         exists.update({s.id for s in skills})
-    missing_module_for_skill = Module.objects.exclude(id__in=exists)
+    missing_module_for_skill = Skill.objects.exclude(id__in=exists)
 
     # - Skill without module
     missing_module_for_skill = Missing(
@@ -331,7 +332,7 @@ def unassigned(request):
         if len(skills) == 0:
             missing_skill_for_criterion.append(criterion)
         exists.update({s.id for s in skills})
-    missing_criterion_for_skill = Criterion.objects.exclude(id__in=exists)
+    missing_criterion_for_skill = Skill.objects.exclude(id__in=exists)
 
     # - Skill without criterion
     missing_criterion_for_skill = Missing(
@@ -344,15 +345,17 @@ def unassigned(request):
         missing_skill_for_criterion
     )
 
-    missings = missing_field_from_skills, missing_skill_for_field, \
-               missing_advices_from_skills, missing_training_for_modules, \
-               missing_module_for_skill, missing_skill_for_module, \
-               missing_criterion_for_skill, missing_skill_for_criterion
+    missings = [
+        missing_skill_for_field,
+        missing_skill_for_module,
+        missing_field_from_skills,
+        missing_training_for_modules,
+        missing_module_for_skill,
+        missing_criterion_for_skill,
+        missing_skill_for_criterion,
+        missing_advices_from_skills
+    ]
+
+    missing_list = MissingList(missings, sum(len(m) for m in missings))
     return render(request, 'planforma/unassigned.html/',
-                  {'missings': missings})
-
-
-
-
-
-
+                  {'missings': missing_list})

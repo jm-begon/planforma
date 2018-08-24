@@ -5,7 +5,28 @@
     <title>Title</title>
 </head>
 <body>
-    {% debug %}
+
+    <h1>TODOs</h1>
+    {% if missings %}
+        {% if missings.n_missings == 0 %}
+            <div class="alert alert-success" role="alert">
+                Il n'y a pas de TODO.
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Il y a <em>{{ missings.n_missings }}</em> TODO(s) à traiter
+            </div>
+        {% endif %}
+
+        {% for missing in missings.list %}
+            <h2>{{ missing.heading }} {{ missing.list|length }}</h2>
+            <ul>
+            {% for elem in missing.list %}
+                <li>{{ elem.name }}</li>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
 
 </body>
 </html>
