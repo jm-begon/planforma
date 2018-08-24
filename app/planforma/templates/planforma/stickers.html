@@ -1,34 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'planforma/base.html' %}
+{% load app_filters %}
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
-
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'planforma/style.css' %}">
-
-
-    <title>Plan de formation J&S Liège</title>
-</head>
-<body>
-    <!--
-        TODO:
-            - Color for axes
-            - Scrollspy ?
-    -->
-    <div class="container">
-
+{% block content %}
     {% if view %}
         <div class="jumbotron">
             <h1 class="display-4">Plan de formation J&S Liège</h1>
             <p class="lead">Bienvenu sur la page '{{ view.name }}' du plan de formation</p>
-            <hr>
+            <hr/>
             <p><a class="btn btn-primary btn-lg" href="#start_here" role="button">Let's go </a></p>
 
         </div>
@@ -45,35 +23,35 @@
         <!-- Model Category Instance: axe animation -->
         {% for sticker in view.list %}
             <div class="card"><div class="card-body">
-                <h6 id="{{ view.address }}{{ sticker.id }}" class="card-title lead">
+                <h6 id="{{ sticker.model|id_str }}" class="card-title lead">
                     {{ sticker.name }}
-                    <a href="{{ view.address }}#{{ view.address }}{{ sticker.id }}" class="icon-tag"></a>
+                    <a href="{{ view.address }}#{{ sticker.model|id_str }}" class="icon-tag"></a>
                 </h6>
                 <hr/>
                 <!-- Other Category Class: Formations -->
                 {% for category in sticker.components %}
                     {% if category.short %}
                         <p>
-                        <span class="card-title">{{ category.name }}</span> <a href="{{ category.address }}#start_here" class="icon-tag"></a>
-                        {% for sticker_compo in category.list %}
-                            <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}"><span class="badge badge-pill badge-secondary badge-{{ sticker_compo.name }}">{{ sticker_compo.name }}</span></a>
-                        {% endfor %}
+                            <span class="card-title">{{ category.name }}</span> <a href="{{ category.address }}#start_here" class="icon-tag"></a>
+                            {% for sticker_compo in category.list %}
+                                <a href="{{ category.address }}#{{ sticker_compo|id_str }}"><span class="badge badge-pill badge-secondary badge-{{ sticker_compo.name }}">{{ sticker_compo.name }}</span></a>
+                            {% endfor %}
                         </p>
                     {% else %} <!-- long -->
                         <div class="card">
-                            <div class="card-header" id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}_header">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" aria-expanded="false" aria-controls="card_{{ category.address }}">
+                            <div class="card-header" id="card_header_{{ sticker.model|id_str }}_{{ category.address }}">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#card_collapsable_{{ sticker.model|id_str }}_{{ category.address }}" aria-expanded="false" aria-controls="card_{{ category.address }}">
                                     <span class="icon-list"> </span>{{ category.name }}
                                 </button>
                                 {% if not category.is_raw %} <a href="{{ category.address }}#start_here" class="icon-tag"></a> {% endif %}
                             </div>
-                            <div id="card_{{ view.address }}{{ sticker.id }}_{{ category.address }}" class="collapse {{ category.short|yesno:"show," }}" aria-labelledby="headingOne">
+                            <div id="card_collapsable_{{ sticker.model|id_str }}_{{ category.address }}" class="collapse {{ category.short|yesno:"show," }}" aria-labelledby="headingOne">
                                 <div class="card-body">
                                     {% if not category.is_raw %}
                                         <ul>
                                             {% for sticker_compo in category.list %}
                                                 <li>
-                                                    <a href="{{ category.address }}#{{ category.address }}{{ sticker_compo.id }}">
+                                                    <a href="{{ category.address }}#{{ sticker_compo|id_str }}">
                                                         {{ sticker_compo.name }}
                                                     </a>
                                                 </li>
@@ -94,15 +72,12 @@
     {% else %}
         <p>'view' not set</p>
     {% endif %}
-
-        <footer>
-            <span class="badge badge-pill badge-secondary badge-Bien-être">Bien-être</span>
-            <span class="badge badge-pill badge-secondary badge-Animation">Animation</span>
-            <span class="badge badge-pill badge-secondary badge-Evalue">Evalue</span>
-            <span class="badge badge-pill badge-secondary badge-Engagement">Engagement</span>
-            <span class="badge badge-pill badge-secondary badge-Autre">Autre</span>
-            <span class="badge badge-pill badge-secondary badge-Amusement">Amusement</span>
-        </footer>
-    </div>
-</body>
-</html>
+{% endblock %}
+{% block footer %}
+    <span class="badge badge-pill badge-secondary badge-Bien-être">Bien-être</span>
+    <span class="badge badge-pill badge-secondary badge-Animation">Animation</span>
+    <span class="badge badge-pill badge-secondary badge-Evalue">Evalue</span>
+    <span class="badge badge-pill badge-secondary badge-Engagement">Engagement</span>
+    <span class="badge badge-pill badge-secondary badge-Autre">Autre</span>
+    <span class="badge badge-pill badge-secondary badge-Amusement">Amusement</span>
+{% endblock %}

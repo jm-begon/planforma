@@ -6,17 +6,9 @@ from .models import *
 from collections import namedtuple
 
 
-Sticker = namedtuple('Sticker', ['id', 'name', 'components'])
+Sticker = namedtuple('Sticker', ['model', 'name', 'components'])
 
 Navigation = namedtuple('Navigation', ['name', 'address', 'focus'])
-
-__ADDRESSES__ = {
-    Field: 'axes',
-    Training: 'formations',
-    Skill: 'competences',
-    Module: 'modules',
-    Criterion: 'criteres'
-}
 
 
 class MainCategory(object):
@@ -47,7 +39,7 @@ class MainCategory(object):
 
     @classmethod
     def from_(cls, Model_cls, sticker_list):
-        return MainCategory(Model_cls.name_fr, __ADDRESSES__[Model_cls],
+        return MainCategory(Model_cls.name_fr, Model_cls.linkable_name,
                             sticker_list)
 
 
@@ -65,27 +57,27 @@ class Category(MainCategory):
     @classmethod
     def fields(cls, iterable, short=True):
         return cls.from_iterable(iterable, Field.name_fr,
-                                 __ADDRESSES__[Field], short)
+                                 Field.linkable_name, short)
 
     @classmethod
     def trainings(cls, iterable, short=True):
         return cls.from_iterable(iterable, Training.name_fr,
-                                 __ADDRESSES__[Training], short)
+                                 Training.linkable_name, short)
 
     @classmethod
     def skills(cls, iterable, short=False):
         return cls.from_iterable(iterable, Skill.name_fr,
-                                 __ADDRESSES__[Skill], short)
+                                 Skill.linkable_name, short)
 
     @classmethod
     def modules(cls, iterable, short=True):
         return cls.from_iterable(iterable, Module.name_fr,
-                                 __ADDRESSES__[Module], short)
+                                 Module.linkable_name, short)
 
     @classmethod
     def criteria(cls, iterable, short=False):
         return cls.from_iterable(iterable, Criterion.name_fr,
-                                 __ADDRESSES__[Criterion], short)
+                                 Criterion.linkable_name, short)
 
     @classmethod
     def fields_from_skills(cls, skills, short=True):
@@ -150,7 +142,7 @@ class Category(MainCategory):
 
 def create_navigation(model_cls):
     return tuple((
-        Navigation(Model.name_fr, __ADDRESSES__[Model], Model is model_cls)
+        Navigation(Model.name_fr, Model.linkable_name, Model is model_cls)
         for Model in (Field, Training, Skill, Module, Criterion)
     ))
 
@@ -166,7 +158,7 @@ def fields(request):
 
         criterion_category = Category.criteria_from_skills(skill_category)
 
-        field_stickers.append(Sticker(field.id, field.long_name,
+        field_stickers.append(Sticker(field, field.long_name,
                                       [training_category, module_category,
                                        skill_category, criterion_category]))
 
@@ -186,7 +178,7 @@ def trainings(request):
 
         field_category = Category.fields_from_skills(skill_category)
 
-        training_stickers.append(Sticker(training.id, training.name,
+        training_stickers.append(Sticker(training, training.name,
                                          [field_category, module_category,
                                           skill_category, criterion_category]))
 
@@ -206,7 +198,7 @@ def modules(request):
 
         criterion_category = Category.criteria_from_skills(skill_category)
 
-        module_stickers.append(Sticker(module.id, module.name,
+        module_stickers.append(Sticker(module, module.name,
                                        [training_category, field_category,
                                         skill_category, criterion_category]))
 
@@ -230,7 +222,7 @@ def skills(request):
 
         criterion_category = Category.criteria_from_skills([skill])
 
-        skill_stickers.append(Sticker(skill.id, skill.name,
+        skill_stickers.append(Sticker(skill, skill.name,
                                       [field_category, training_category,
                                        module_category, criterion_category,
                                        advice_category]))
@@ -251,7 +243,7 @@ def criteria(request):
 
         training_category = Category.trainings_from_modules(module_category)
 
-        criterion_stickers.append(Sticker(criterion.id, criterion.name,
+        criterion_stickers.append(Sticker(criterion, criterion.name,
                                           [field_category, training_category,
                                            module_category, skill_category]))
     view = MainCategory.from_(Criterion, criterion_stickers)
@@ -260,7 +252,7 @@ def criteria(request):
 
 
 def unassigned(request):
-    Missing = namedtuple('Missing', ['heading', 'list'])
+    Missing = namedtuple('Missing', ['heading', 'id', 'address', 'list'])
     MissingList = namedtuple('MissingList', ['list', 'n_missings'])
 
     # Skill-based stuff
@@ -281,24 +273,32 @@ def unassigned(request):
     # - Skill without field
     missing_field_from_skills = Missing(
         'Compétences sans axe',
+        'field_from_skills',
+        Skill.linkable_name,
         missing_field_from_skills
     )
 
     # - Field without skills
     missing_skill_for_field = Missing(
         'Axe vide (aucune compétence)',
+        'skill_for_field',
+        Field.linkable_name,
         missing_skill_for_field
     )
 
     # Skill - advices
     missing_advices_from_skills = Missing(
         'Compétences sans conseil',
+        'advice_from_skill',
+        Skill.linkable_name,
         missing_adives
     )
 
     # Module - Training
     missing_training_for_modules = Missing(
         'Modules non-assignés (aucune formation)',
+        'training_for_module',
+        Module.linkable_name,
         Module.objects.filter(training__name="??")
     )
 
@@ -315,12 +315,16 @@ def unassigned(request):
     # - Skill without module
     missing_module_for_skill = Missing(
         'Compétences non-assignées (aucun module)',
+        'module_for_skill',
+        Skill.linkable_name,
         missing_module_for_skill
     )
 
     # - module without skill
     missing_skill_for_module = Missing(
         'Modules vides (aucune compétence)',
+        'skill_for_module',
+        Module.linkable_name,
         missing_skill_for_module
     )
 
@@ -337,11 +341,15 @@ def unassigned(request):
     # - Skill without criterion
     missing_criterion_for_skill = Missing(
         'Compétences non-évaluées (aucun critère)',
+        'criterion_for_skill',
+        Skill.linkable_name,
         missing_criterion_for_skill
     )
     # - Criterion without skill
     missing_skill_for_criterion = Missing(
         'Critères inutiles (aucune compétence)',
+        'skill_for_criterion',
+        Criterion.linkable_name,
         missing_skill_for_criterion
     )
 
@@ -356,6 +364,7 @@ def unassigned(request):
         missing_advices_from_skills
     ]
 
-    missing_list = MissingList(missings, sum(len(m) for m in missings))
+    missing_list = MissingList(missings, sum(len(m.list) for m in missings))
     return render(request, 'planforma/unassigned.html/',
-                  {'missings': missing_list})
+                  {'missings': missing_list,
+                   'display_empty': True})
